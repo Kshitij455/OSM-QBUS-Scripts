@@ -1,4 +1,4 @@
-local QBCore = nil
+local QBCore = exports['qb-core']:GetCoreObject()
 TriggerEvent('QBCore:GetObject', function(obj) QBCore = obj end)
 
 -- Callback to get hacker device count:
@@ -8,7 +8,7 @@ QBCore.Functions.CreateCallback("osm-atmrobbery:getHackerDevice",function(source
 		cb(true)
 	else
 		cb(false)
-		TriggerClientEvent('QBCore:Notify', source, "You need an Electronic Kit and a Drill to proceed.")
+		TriggerClientEvent('QBCore:Notify', source, "You need something or you can't open this small bank with one item")
 	end
 end)
 
