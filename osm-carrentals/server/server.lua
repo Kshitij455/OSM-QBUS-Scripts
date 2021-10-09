@@ -1,7 +1,7 @@
 -- ENTIRE SCRIPT MADE BY OSMIUM#0001 | DISCORD.IO/OSMFX 
 -- This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License. To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/ or send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA. 
 
-QBCore = nil
+local QBCore = exports['qb-core']:GetCoreObject()
 
 TriggerEvent('QBCore:GetObject', function(obj) QBCore = obj end)
 
@@ -53,7 +53,7 @@ AddEventHandler('osm-carrentals:server:sql', function(closevehid, plate, closeve
     local cid = pData.PlayerData.citizenid
     local vData = CRConfig.RentingPositions[closevehid]
     local rate = vData.rentcost
-    QBCore.Functions.ExecuteSql(false, "INSERT INTO `car_rentals` (`steam`, `citizenid`, `vehicle`, `rent`, `plate`, `status`) VALUES ('"..pData.PlayerData.steam.."', '"..cid.."', '"..closeveh.."', '"..rate.."', '"..plate.."', 'renting')")
+    exports.oxmysql:insert(false, "INSERT INTO `car_rentals` (`steam`, `citizenid`, `vehicle`, `rent`, `plate`, `status`) VALUES ('"..pData.PlayerData.steam.."', '"..cid.."', '"..closeveh.."', '"..rate.."', '"..plate.."', 'renting')")
 end)
 
 RegisterNetEvent('osm-carrentals:server:SetUse')
@@ -70,7 +70,7 @@ AddEventHandler('osm-carrentals:server:hourly', function()
     local balance = pData.PlayerData.money["bank"]
     local cash = pData.PlayerData.money["cash"]
     local status = "renting"
-    QBCore.Functions.ExecuteSql(true, "SELECT * FROM `car_rentals` WHERE `citizenid` = '"..cid.."' AND `status` = '"..status.."'", function(result)
+    exports.oxmysql:fetchSync(true, "SELECT * FROM `car_rentals` WHERE `citizenid` = '"..cid.."' AND `status` = '"..status.."'", function(result)
      local rate = tonumber(result[1].rent)
      local vehicle = tonumber(result[1].vehicle)
     -- print(result[1].vehicle)
@@ -96,14 +96,14 @@ end)
 RegisterNetEvent('osm-carrentals:server:EndRental')
 AddEventHandler('osm-carrentals:server:EndRental', function(currentcar)
     local src = source
-    QBCore.Functions.ExecuteSql(false, "UPDATE `car_rentals` SET status = 'done' WHERE `vehicle` = '"..currentcar.."'")
+    exports.oxmysql:execute(false, "UPDATE `car_rentals` SET status = 'done' WHERE `vehicle` = '"..currentcar.."'")
     TriggerClientEvent("QBCore:Notify", src, "Successfully Finished your Ride! The Car will be Towed Soon!", "success", 5000)
 
 end)
 RegisterNetEvent('osm-carrentals:server:SetDone')
 AddEventHandler('osm-carrentals:server:SetDone', function(currentcar)
     local src = source
-    QBCore.Functions.ExecuteSql(false, "UPDATE `car_rentals` SET status = 'done' WHERE `vehicle` = '"..currentcar.."'")
+    exports.oxmysql:execute(false, "UPDATE `car_rentals` SET status = 'done' WHERE `vehicle` = '"..currentcar.."'")
     -- TriggerClientEvent("QBCore:Notify", src, "Successfully Finished your Ride! The Car will be Towed Soon!", "success", 5000)
 
 end)
@@ -136,7 +136,7 @@ end)
 
 function GeneratePlate()
     local plate = tostring(GetRandomNumber(1)) .. GetRandomLetter(2) .. tostring(GetRandomNumber(3)) .. GetRandomLetter(2)
-    QBCore.Functions.ExecuteSql(true, "SELECT * FROM `player_vehicles` WHERE `plate` = '"..plate.."'", function(result)
+    exports.oxmysql:fetchSync(true, "SELECT * FROM `player_vehicles` WHERE `plate` = '"..plate.."'", function(result)
         while (result[1] ~= nil) do
             plate = tostring(GetRandomNumber(1)) .. GetRandomLetter(2) .. tostring(GetRandomNumber(3)) .. GetRandomLetter(2)
         end
